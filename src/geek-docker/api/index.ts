@@ -1,3 +1,3 @@
-export { login } from './login'
+export { login, autoGetUserInfo } from './login'
 export { instance } from './instance'
 

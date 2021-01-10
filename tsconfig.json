@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "baseUrl": "/src", // 工作根目录
+    "baseUrl": "./src", // 工作根目录
     "experimentalDecorators": true, // 启用实验性的ES装饰器
     "allowUnreachableCode": true, // 不报告执行不到的代码错误
     "allowUnusedLabels": true,	// 不报告未使用的标签错误
@@ -10,11 +10,6 @@
     "lib": [
       "es2015"
     ],
-    "paths": { // 指定模块的路径，和baseUrl有关联，和webpack中resolve.alias配置一样
-      "@": [ //指定后可以在文件之直接 import * from 'src';
-        "/src"
-      ],
-    },
     "allowJs": true, // 允许编译javascript文件。
   }
 }
