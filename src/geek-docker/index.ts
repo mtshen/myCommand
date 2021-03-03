@@ -1,13 +1,14 @@
 import Menu from "../constants/Menu";
 import { clearConsole } from "../console";
 import { GeekDockerOption, GeekDockerUserInfoOption } from "../type/geek-docker";
-import { autoGetUserInfo, instance } from "./api";
+import { autoGetUserInfo, getInstanceList } from "./api";
 import { getOption, setOption } from "./../option/index";
+import Docker from "./contents/docker/docker";
 
 import * as chalk from "chalk";
 import * as inquirer from "inquirer";
 
-class GeekDocker extends Menu {
+export default class GeekDocker extends Menu {
   title = "geek + Docker 2.0 系统";
   option = {
     dockerLoginInfo: null,
@@ -59,13 +60,7 @@ class GeekDocker extends Menu {
         this.menuList = [
           { title: "快速部署新的 Docker 环境", event: "autoDeployment" },
           { title: "建立快速部署模板", event: "createAutoDeploymentTemp" },
-          ...dockerList.map(dockerItem => {
-            return {
-              title: `[${Number(dockerItem.deployEnv) ? "test" : "dev"}-${dockerItem.id}] [${dockerItem.productLineName}] ${dockerItem.instanceName}`,
-              event: "selectDocker",
-              docker: dockerItem,
-            }
-          })
+          ...dockerList.map(dockerItem => new Docker(dockerItem))
         ];
       })
   }
@@ -139,7 +134,11 @@ class GeekDocker extends Menu {
   loginDocker() {
     return autoGetUserInfo().then(({ code, data, token }) => {
       if (code === 200) {
-        console.log(chalk.dim.bold.blue(`[${data.user_name}] 登录成功 ~ `));
+        if (data.isGetUserInfo) {
+          console.log(chalk.dim.bold.blue(`[${data.user_name}] 欢迎回来 ~`));
+        } else {
+          console.log(chalk.dim.bold.blue(`[${data.user_name}] 登录成功 ~ `));
+        }
         this.saveUserInfo(data, token);
       }
     }).catch(() => {
@@ -155,7 +154,7 @@ class GeekDocker extends Menu {
   }
 
   getInstance() {
-    return instance();
+    return getInstanceList();
   }
 
   saveUserInfo(data, token) {
@@ -180,26 +179,3 @@ class GeekDocker extends Menu {
     console.log("选择Docker");
   }
 }
-
-export default new GeekDocker();
-
-
-// inquirer
-// .prompt([
-//     {
-//         type: 'list', // 还有input,checkbox,password等类型
-//         name: 'selCliType',
-//         message: '选择操作或Docker',
-//         choices: [
-//           // (重启, 快速部署, 部署其他)
-//           // 新增Docker
-//           { name: "新增Docker" },
-//           // 管理Docker
-//           { name: "管理Docker快速部署模板" },
-//           // 我的Docker
-//           { name: "dev-1100 模板0001" },
-//         ]
-//     },
-// ])
-// .then(answers => {
-// });

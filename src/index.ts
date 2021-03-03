@@ -2,10 +2,11 @@
 
 // 配置axios
 import "./option/axiosConf";
-
+// 配置inquirer
+import "./option/inquirer";
 
 /* 配置完成, 运行主菜单 */
-import topLevelMenu from "./main";
+import TopLevelMenu from "./main";
 
 // 开始执行
-topLevelMenu.__handle();
+new TopLevelMenu().__handle();

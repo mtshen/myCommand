@@ -1,3 +1,3 @@
 export { login, autoGetUserInfo } from './login'
-export { instance } from './instance'
+export { getInstanceList, delInstanceId, getInstanceId, restartInstanceId } from './instance'
 

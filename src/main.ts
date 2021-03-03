@@ -2,16 +2,17 @@ import Menu from "./constants/Menu";
 import { clearConsole, exitConsole } from "./console";
 
 // 内容
-import geekDocker from "./geek-docker";
-
-class TopLevelMenu extends Menu {
+import GeekDocker from "./geek-docker";
+import Fund from "./fund";
+export default class TopLevelMenu extends Menu {
   title = "主菜单";
   menuList = [];
 
   constructor() {
     super();
     this.menuList = [
-      geekDocker,
+      new GeekDocker(),
+      new Fund(),
       { title: "退出", event: "exitView" }
     ];
   }
@@ -27,4 +28,3 @@ class TopLevelMenu extends Menu {
   }
 }
 
-export default new TopLevelMenu();

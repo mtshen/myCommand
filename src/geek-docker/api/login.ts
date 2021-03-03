@@ -53,6 +53,7 @@ export function autoGetUserInfo() {
       return getUserInfo(params.userInfoCache.token).then((data) => {
         if (data.code === 200) {
           isGetUserInfo = true;
+          data.data.isGetUserInfo = true;
           return data;
         }
 

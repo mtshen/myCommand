@@ -7,13 +7,14 @@ export default class Menu {
   // 当菜单作为子菜单时的名称
   menuTitle: String = "";
   // 上级菜单传入的数据
-  props: Object = {};
+  props: any = {};
   // 存储当前菜单数据, 会自动传入到下级菜单中
   option: Object = {};
   // 上级菜单必定是Menu类型
   lastMenu: Menu|null = null;
   // 菜单数据
   menuList: Array<any> = [];
+  menuType: String = "list";
 
   constructor() {}
 
@@ -24,7 +25,7 @@ export default class Menu {
    */
   __handle(lastMenu?: Menu, props?: Object) {
     return new Promise(resolve => {
-      if (props) this.props = props;
+      if (props) this.props = { ...this.props, ...props };
       if (lastMenu) this.lastMenu = lastMenu;
       resolve(void 0);
     })
@@ -49,6 +50,8 @@ export default class Menu {
 
   // 默认的渲染函数
   render(menuList, lastMenu) {
+    const { menuType } = this;
+
     const choices = [];
     choices.push(
       // 菜单
@@ -70,7 +73,7 @@ export default class Menu {
 
     return prompt([
       {
-        type: 'list',
+        type: menuType,
         name: 'selectMenuItem',
         message: '请选择:',
         choices,
