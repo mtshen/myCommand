@@ -63,16 +63,33 @@ export default class GeekDocker extends Menu {
 
       return fundModel.filterSync((fundItem, next: Function) => {
         console.log(chalk.bold.blue(`分析基金：${fundItem.name}（${fundItem.code}）`));
+        let isPass = true;
+
+        // 对剩余基金进行详细数据分析
         getEastmoneyCodeHtml(fundItem.code).then((data) => {
           const $ = cheerio.load(data);
-          // 对剩余基金进行详细数据分析
-          // 1. 对基金往年业绩评分判断 每年业绩至少在4/1位
+          const yearRanking = $(".increaseAmount .ui-table-hover").eq(2).find("tr").eq(5);
+          yearRanking.each((index, rankItem) => {
+            if (index !== 0) {
+              // 1. 对基金往年业绩评分判断 每年业绩至少在3/1位
+              const rankItemStr = $(rankItem).find(".Rdata").text();
+              if (rankItemStr) {
+                const [cur, total] = rankItemStr.split(" | ");
+                if (Number(cur) && Number(total)) {
+                  if (Number(total) / 3 < Number(cur)) {
+                    isPass = false;
+                    console.log(chalk.bold.red("四分位排名计算落选"));
+                  }
+                }
+              }
+            }
+          });
           // 2. 对基金规模进行判断 5 ~ 200 亿
           // 3. 基金公司分析是否在榜...等等
 
           // 由于没有做代理池, 每支基金分析结束延迟1s, 防止被IP封锁
           setTimeout(() => {
-            next(true);
+            next(isPass);
           }, 1000);
         });
       });
