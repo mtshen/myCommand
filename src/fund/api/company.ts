@@ -6,3 +6,11 @@ export function getCompanyHtml() {
     return data;
   });
 }
+
+
+export function getEastmoneyCodeHtml(code) {
+  return axios.get(`http://fund.eastmoney.com/${code}.html`)
+    .then(({ data }) => {
+      return data;
+    });
+}

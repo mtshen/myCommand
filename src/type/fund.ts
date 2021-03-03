@@ -3,6 +3,7 @@ export type FundInfoListItemType = {
   name: string,
   nameCode: string,
   companyNetWorth: string,
+  currentDate: string,
   cumulativeNetWorth: string,
   dayGrowthRate: string,
   weekGrowthRate: string,
@@ -13,4 +14,6 @@ export type FundInfoListItemType = {
   thisYearGrowthRate: string,
   yearGrowthRateAll: string,
   creationTime: string,
+  monthGrowthRate: string,
+  year2GrowthRate: string,
 }
