@@ -69,6 +69,7 @@ export default class Fund {
   filterSync(callback: Function) {
     return new Promise((resolve) => {
       const { fundInfoList } = this;
+      const that = this;
       const filterFundList = [];
       let index = -1;
 
@@ -81,7 +82,7 @@ export default class Fund {
         if (item) {
           callback(item, next);
         } else {
-          this.fundInfoList = filterFundList;
+          that.fundInfoList = filterFundList;
           resolve(filterFundList);
         }
       }

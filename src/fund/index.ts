@@ -55,8 +55,8 @@ export default class GeekDocker extends Menu {
       fundModel.removalDateOf(3);
       console.log(chalk.bold.blue(`剔除无法参考的基金, 剩余${fundModel.fundInfoList.length}支`));
 
-      // 剥离累计净值小于3.5的基金
-      fundModel.removalCumulativeNetWorthOf(3.5);
+      // 剥离累计净值小于3.2的基金
+      fundModel.removalCumulativeNetWorthOf(3.2);
       console.log(chalk.bold.blue(`剔除往年无高净值基金, 剩余${fundModel.fundInfoList.length}支`));
 
       console.log(chalk.bold.blue(`开始对剩余基金进行二级分析...`));
@@ -68,29 +68,45 @@ export default class GeekDocker extends Menu {
         // 对剩余基金进行详细数据分析
         getEastmoneyCodeHtml(fundItem.code).then((data) => {
           const $ = cheerio.load(data);
-          const yearRanking = $(".increaseAmount .ui-table-hover").eq(2).find("tr").eq(5);
-          yearRanking.each((index, rankItem) => {
-            if (index !== 0) {
-              // 1. 对基金往年业绩评分判断 每年业绩至少在3/1位
-              const rankItemStr = $(rankItem).find(".Rdata").text();
-              if (rankItemStr) {
-                const [cur, total] = rankItemStr.split(" | ");
-                if (Number(cur) && Number(total)) {
-                  if (Number(total) / 3 < Number(cur)) {
-                    isPass = false;
-                    console.log(chalk.bold.red("四分位排名计算落选"));
+          if (isPass) {
+            const yearRanking = $(".increaseAmount .ui-table-hover").eq(2).find("tr").eq(4).find("td");
+            yearRanking.each((index, rankItem) => {
+              // 3年内业绩优秀的基金
+              if (index !== 0 && index <= 3 && isPass) {
+                // 1. 对基金往年业绩评分判断 每年业绩至少在3/1位
+                const rankItemStr = $(rankItem).find(".Rdata").text();
+                if (rankItemStr) {
+                  const [cur, total] = rankItemStr.split(" | ");
+                  if (Number(cur) && Number(total)) {
+                    if (Number(total) / 3 < Number(cur)) {
+                      isPass = false;
+                      console.log(chalk.bold.red("四分位排名计算落选"));
+                    }
                   }
                 }
               }
-            }
-          });
+            });
+          }
+
           // 2. 对基金规模进行判断 5 ~ 200 亿
-          // 3. 基金公司分析是否在榜...等等
+          if (isPass) {
+            const scale = $(".fundInfoItem .infoOfFund tbody tr").eq(0).find("td").eq(1).text();
+            // 3. 基金公司分析是否在榜...等等
+            const scaleVal = parseFloat(scale.slice(5));
+            if (scaleVal < 5) {
+              isPass = false;
+              console.log(chalk.bold.red("基金规模落选"));
+            }
+          }
 
           // 由于没有做代理池, 每支基金分析结束延迟1s, 防止被IP封锁
           setTimeout(() => {
             next(isPass);
-          }, 1000);
+          }, 2000);
+        })
+        .catch(() => {
+          console.log(chalk.bold.red(`无法分析该基金`));
+          next(false);
         });
       });
     })
@@ -102,6 +118,10 @@ export default class GeekDocker extends Menu {
       fundModel.fundInfoList.forEach((item: FundInfoListItemType) => {
         console.log(item.code);
       });
+    })
+
+    .catch(() => {
+
     });
 
   }
