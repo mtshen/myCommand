@@ -1,5 +1,6 @@
 
 import { prompt } from "inquirer";
+import * as chalk from "chalk";
 
 export default class Menu {
   // 名称
@@ -67,7 +68,7 @@ export default class Menu {
 
     // 返回上级菜单
     lastMenu && choices.push({
-      name: `返回到${ lastMenu.menuTitle || lastMenu.title }`,
+      name: chalk.dim.bold.blue(`返回到${ lastMenu.menuTitle || lastMenu.title }`),
       value: lastMenu,
     });
 

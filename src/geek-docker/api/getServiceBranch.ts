@@ -13,7 +13,4 @@ export function getInstanceId(configEnv: String) {
       },
     });
   })
-  .then(({ data }) => {
-    return data;
-  });
 }

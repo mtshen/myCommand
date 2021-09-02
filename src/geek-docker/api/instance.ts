@@ -17,9 +17,6 @@ export function getInstanceList() {
       },
     });
   })
-  .then(({ data }) => {
-    return data;
-  });
 }
 
 // 查询指定ID
@@ -30,9 +27,6 @@ export function getInstanceId(id: String) {
       headers: {'Authorization': userInfoCache.token },
     });
   })
-  .then(({ data }) => {
-    return data;
-  });
 }
 
 // 删除指定ID
@@ -43,9 +37,6 @@ export function delInstanceId(id: String) {
       headers: {'Authorization': userInfoCache.token },
     });
   })
-  .then(({ data }) => {
-    return data;
-  });
 }
 
 // 重启指定Docker
@@ -53,15 +44,32 @@ export function restartInstanceId(id: String, isReset: Boolean = false) {
   return getOption("geek-docker").then((paramsCache: GeekDockerOption) => {
     const { serverUrl, userInfoCache } = paramsCache;
     return axios.post(`http://${serverUrl}/api/v1/instance/job/restart/${id}`,
-    { id, isReset },
+    { id, isReset, restart: true },
     {
       headers: {'Authorization': userInfoCache.token },
     });
   })
-  .then(({ data }) => {
-    return data;
-  });
 }
 
+// 部署指定Docker
+export function instanceDeployApi(option) {
+  return getOption("geek-docker").then((paramsCache: GeekDockerOption) => {
+    const { serverUrl, userInfoCache } = paramsCache;
+    return axios.post(`http://${serverUrl}/api/v1/instance/deploy/${option.instance_id}`,
+    option,
+    {
+      headers: {'Authorization': userInfoCache.token },
+    });
+  })
+}
+
+export function instanceDeployInfoApi(projectId: String, dockerId: String) {
+  return getOption("geek-docker").then((paramsCache: GeekDockerOption) => {
+    const { serverUrl, userInfoCache } = paramsCache;
+    return axios.get(`http://${serverUrl}/api/v1/instance/deploy-info/${projectId}/${dockerId}`, {
+      headers: {'Authorization': userInfoCache.token },
+    });
+  })
+}
 
 

@@ -1,0 +1,11 @@
+[
+  {
+    "branch": "2.21.0_Z2.6",  // 版本
+    "build_source": "ark-web",
+    "deploy_branch": "",
+    "id": 3,
+    "name": "ark",
+    "recompile": false,
+    "repo_id": 233
+  }
+]

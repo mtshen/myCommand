@@ -6,7 +6,7 @@ import * as chalk from "chalk";
 import Fund from "./Fund";
 import { FundInfoListItemType } from "../type/fund";
 export default class GeekDocker extends Menu {
-  title = "mtshen + 基金筛选";
+  title = "基金筛选[Bate]";
   option = {
     // 基金公司TOP25
     managerList: [],

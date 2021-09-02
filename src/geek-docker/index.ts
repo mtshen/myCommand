@@ -9,7 +9,7 @@ import * as chalk from "chalk";
 import * as inquirer from "inquirer";
 
 export default class GeekDocker extends Menu {
-  title = "geek + Docker 2.0 系统";
+  title = "GeekDocker + ";
   option = {
     dockerLoginInfo: null,
     dockerList: [],
@@ -42,7 +42,7 @@ export default class GeekDocker extends Menu {
       })
 
       // 拼接数据列表
-      .then(({ data }) => {
+      .then((data: any) => {
         const { pageData } = data;
         const dockerList = pageData.map((pageDataItem) => {
           const { id, instance_name, product_line_name, updated, deploy_env } = pageDataItem;
@@ -58,10 +58,14 @@ export default class GeekDocker extends Menu {
         this.option.dockerList = dockerList;
 
         this.menuList = [
-          { title: "快速部署新的 Docker 环境", event: "autoDeployment" },
-          { title: "建立快速部署模板", event: "createAutoDeploymentTemp" },
+          { title: chalk.dim.bold.blue("搜索Docker"), event: "queryDocker" },
+          { title: chalk.dim.bold.red(`退出登录`), event: "outLogin" },
           ...dockerList.map(dockerItem => new Docker(dockerItem))
         ];
+      })
+
+      .catch((error) => {
+        console.log(chalk.dim.bold.red(`生成菜单失败 错误:[${error}]`));
       })
   }
 
@@ -112,7 +116,6 @@ export default class GeekDocker extends Menu {
       }
 
       if (makePrompts.length) {
-        console.log(chalk.dim.red("您还未添加过关键配置, 请先添加 ↓"));
         return inquirer.prompt(makePrompts);
       }
     })
@@ -132,25 +135,29 @@ export default class GeekDocker extends Menu {
 
   // 登录Docker 2.0, 如果成功则加入缓存区
   loginDocker() {
-    return autoGetUserInfo().then(({ code, data, token }) => {
-      if (code === 200) {
-        if (data.isGetUserInfo) {
-          console.log(chalk.dim.bold.blue(`[${data.user_name}] 欢迎回来 ~`));
-        } else {
-          console.log(chalk.dim.bold.blue(`[${data.user_name}] 登录成功 ~ `));
-        }
-        this.saveUserInfo(data, token);
-      }
-    }).catch(() => {
+    return autoGetUserInfo().then(({ data, token }) => {
+      console.log(chalk.dim.bold.blue(`[${(data as any).user_name}] 登录成功 ~ `));
+      return this.saveUserInfo(data, token);
+    }).catch((error) => {
       this.option.dockerLoginInfo = null;
-      console.log(chalk.dim.bold.red(`登录失败 ~ 请重试`));
+      console.log(chalk.dim.bold.red(`登录失败 错误:[${error}]`));
+      // 登录失败后清空登录信息
+      this.clearLoginConf();
+      this.resetLogin();
+    });
+  }
+
+  clearLoginConf() {
+    this.option.dockerLoginInfo = null;
+    return setOption("geek-docker", {
+      loginParams: {},
+      userInfoCache: {},
     });
   }
 
   // 菜单, 重新登录
   resetLogin() {
     this.reRender()
-
   }
 
   getInstance() {
@@ -163,8 +170,8 @@ export default class GeekDocker extends Menu {
       "userId": data.user_id,
       "token": token,
     };
-    setOption("geek-docker", { userInfoCache });
     this.option.dockerLoginInfo = userInfoCache;
+    return setOption("geek-docker", { userInfoCache });
   }
 
   autoDeployment() {
@@ -177,5 +184,19 @@ export default class GeekDocker extends Menu {
 
   selectDocker() {
     console.log("选择Docker");
+  }
+
+  queryDocker() {
+    console.log("选择Docker");
+  }
+
+  // 退出登录
+  outLogin() {
+    clearConsole();
+    this.clearLoginConf().then(() => {
+      setTimeout(() => {
+        this.resetLogin();
+      }, 500);
+    });
   }
 }

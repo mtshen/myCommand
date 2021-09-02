@@ -4,7 +4,7 @@ import { GeekDockerOption } from "../../type/geek-docker";
 import dataStorage from "../data";
 
 // 登录接口
-export function login(params:any = {}) {
+export function loginApi(params:any = {}) {
   return getOption("geek-docker")
 
   .then((paramsCache: GeekDockerOption) => {
@@ -14,14 +14,10 @@ export function login(params:any = {}) {
         password: params.password || loginParams.password,
       });
     })
-
-    .then((request) => {
-      return request.data;
-    });
 }
 
 // 获取用户信息
-export function getUserInfo(token?: String) {
+export function getUserInfoApi(token?: String) {
   return getOption("geek-docker")
 
   .then((paramsCache: GeekDockerOption) => {
@@ -31,50 +27,33 @@ export function getUserInfo(token?: String) {
     });
   })
 
-  .then((request) => {
-    const { code, data } = request.data;
-    return { code, data, token};
+  .then((data) => {
+    return { data, token };
   })
 }
 
 
-// 自动获取用户信息
-export function autoGetUserInfo() {
-  let isGetUserInfo = false;
-  let paramsCache: GeekDockerOption;
+/**
+ * 将自动登录封装, 如果检测到有token就尝试使用koken登录 如果登录失败 就转正常登录
+ * getUserInfoApi 是用token 直接获取用户数据
+ * loginApi 是登录接口, 用来拿到最新的登录token
+ * @returns
+ */
+export async function autoGetUserInfo() {
 
-  return getOption("geek-docker")
+  const params: GeekDockerOption = await getOption("geek-docker");
 
-  .then((params: GeekDockerOption) => {
-    paramsCache = params;
+  // 如果token存在, 尝试直接用token去登录
+  if (params.userInfoCache.token) {
+    return getUserInfoApi(params.userInfoCache.token).then((data) => {
+      return data;
+    });
+  }
 
-    // 有Token 并未失效 直接取用户信息
-    if (params.userInfoCache.token) {
-      return getUserInfo(params.userInfoCache.token).then((data) => {
-        if (data.code === 200) {
-          isGetUserInfo = true;
-          data.data.isGetUserInfo = true;
-          return data;
-        }
-
-        // 无ToKen, 或失效 转登录
-        return;
-      });
-    }
-    // 无ToKen 转登录
-    return;
+  // 如果token不存在, 尝试用目前存在的用户密码去登录
+  return loginApi().then((data: any) => {
+    return getUserInfoApi(data.token);
   })
-
-  // 登录
-  .then((userInfo) => {
-    // 不是真正的登录 才走登录
-    if (!isGetUserInfo) {
-      return login().then(loginInfo => {
-        return getUserInfo(loginInfo.data.token);
-      })
-    }
-    return userInfo;
-  });
 }
 
 
