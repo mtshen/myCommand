@@ -1,3 +1,3 @@
-export { loginApi, autoGetUserInfo } from './login'
+export { loginApi, logoutApi, autoGetUserInfo } from './login'
 export { getInstanceList, delInstanceId, getInstanceId, restartInstanceId, instanceDeployInfoApi, instanceDeployApi } from './instance'
 

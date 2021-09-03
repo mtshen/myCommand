@@ -1,7 +1,7 @@
 import Menu from "../constants/Menu";
 import { clearConsole } from "../console";
 import { GeekDockerOption, GeekDockerUserInfoOption } from "../type/geek-docker";
-import { autoGetUserInfo, getInstanceList } from "./api";
+import { autoGetUserInfo, getInstanceList, logoutApi } from "./api";
 import { getOption, setOption } from "./../option/index";
 import Docker from "./contents/docker/docker";
 
@@ -182,10 +182,6 @@ export default class GeekDocker extends Menu {
     console.log("创建自动部署模板");
   }
 
-  selectDocker() {
-    console.log("选择Docker");
-  }
-
   queryDocker() {
     console.log("选择Docker");
   }
@@ -193,10 +189,12 @@ export default class GeekDocker extends Menu {
   // 退出登录
   outLogin() {
     clearConsole();
-    this.clearLoginConf().then(() => {
-      setTimeout(() => {
-        this.resetLogin();
-      }, 500);
+    return logoutApi().then(() => {
+      return this.clearLoginConf().then(() => {
+        setTimeout(() => {
+          this.resetLogin();
+        }, 500);
+      });
     });
   }
 }

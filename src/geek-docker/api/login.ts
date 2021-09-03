@@ -32,6 +32,17 @@ export function getUserInfoApi(token?: String) {
   })
 }
 
+// 退出登录
+export function logoutApi() {
+  return getOption("geek-docker")
+  .then((paramsCache: GeekDockerOption) => {
+    const { serverUrl, userInfoCache } = paramsCache;
+    return axios.post(`http://${serverUrl}/api/v1/logout`, {
+      headers: {'Authorization': userInfoCache.token }
+    });
+  })
+}
+
 
 /**
  * 将自动登录封装, 如果检测到有token就尝试使用koken登录 如果登录失败 就转正常登录

@@ -78,6 +78,7 @@ export default class Menu {
         name: 'selectMenuItem',
         message: '请选择:',
         choices,
+        loop: false,
       },
     ]).then(({ selectMenuItem }) => {
       // 如果是菜单数据, 则自动触发菜单切换事件

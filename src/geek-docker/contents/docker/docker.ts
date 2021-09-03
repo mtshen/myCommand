@@ -35,7 +35,7 @@ export default class Docker extends Menu {
         // 获取常用配置
         this.menuList = [
           { title: "快速部署(保持配置, 仅更新代码)", event: "updateDocker" },
-          { title: "编辑当前Docker", },
+          { title: "编辑当前Docker", event: "editDocker" },
           { title: "复制当前Docker", event: "copyDocker" },
           { title: "重启当前Docker", event: "restartDocker" },
           { title: "删除当前Docker", event: "removeDocker" },
@@ -126,11 +126,11 @@ export default class Docker extends Menu {
     }
   }
 
-
+  // 更新docker
   updateDocker() {
     const { deployInfo } = this.props;
 
-    const notify_user_list = deployInfo.build_info.map(item => {
+    const service_list = deployInfo.build_info.map(item => {
       return {
         ...item,
         branchFill: true, // 部署分支
@@ -147,10 +147,10 @@ export default class Docker extends Menu {
       email_list: [],
       form_data: [],
       instance_id: deployInfo.instance.id,
-      notify_user_list: notify_user_list,
+      notify_user_list: [],
       pipeline_id: 16,  // 构建, 部署
       rollback_mark: "",
-      service_list: [],
+      service_list: service_list,
       task_type: null,
     };
 
@@ -166,5 +166,61 @@ export default class Docker extends Menu {
       console.log(`构建失败【${error}】`);
       this.lastMenu && this.lastMenu.__handle();
     });
+  }
+
+  // 编辑docker
+  editDocker() {
+    clearConsole();
+    const { deployInfo } = this.props;
+    const { build_info, instance } = deployInfo;
+    const  prompts = build_info.map(menuItem => {
+      return {
+        name: menuItem.build_source,
+        message: `${menuItem.build_source}(${menuItem.name}): `,
+        // default: menuItem.branch,
+      };
+    });
+
+    prompt(prompts).then((option) => {
+
+      const service_list = deployInfo.build_info.map(item => {
+        const newBranch = option[item.build_source];
+        return {
+          ...item,
+          branchFill: true, // 部署分支
+          commitFill: false,  // 部署commit
+          deploy_commit_id: "", // 部署commit ID
+          deploy_branch: newBranch, // 部署 分支 Id
+          liquibase_update: true, // 是否更新 liquibase
+          branch: newBranch,
+        };
+      });
+
+      const editOption = {
+        change: "",
+        describe: "",
+        email_list: [],
+        form_data: [],
+        instance_id: deployInfo.instance.id,
+        notify_user_list: [],
+        pipeline_id: 16,  // 构建, 部署
+        rollback_mark: "",
+        service_list: service_list,
+        task_type: null,
+      };
+
+      instanceDeployApi(editOption).then((data) => {
+        console.log(chalk.bold("构建依赖项目: "), deployInfo.build_info.map(item => chalk.bold.blue(`${item.build_source}(${item.branch || '尚未部署'})`)).join(", "));
+        console.log(chalk.bold("是否更新liquibase: true"));
+        console.log(chalk.bold("指令已下发, 请等待构建完成, 3秒后返回主菜单"));
+        setTimeout(() => {
+          this.lastMenu && this.lastMenu.__handle();
+        }, 3000);
+      })
+      .catch((error) => {
+        console.log(`构建失败【${error}】`);
+        this.lastMenu && this.lastMenu.__handle();
+      });
+    })
   }
 }
